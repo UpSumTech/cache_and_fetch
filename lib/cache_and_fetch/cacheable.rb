@@ -5,7 +5,11 @@ module CacheAndFetch
     @cache_duration = 20.minutes
 
     class << self
-      attr_reader :cache_duration
+      attr_accessor :cache_duration
+    end
+
+    included do
+      attr_accessor :cache_expires_at
     end
 
     module ClassMethods
@@ -37,12 +41,12 @@ module CacheAndFetch
     end
 
     def cache
-      @cache_expires_at = Cacheable.cache_duration.since.to_i
+      self.cache_expires_at = Cacheable.cache_duration.since.to_i
       self.cache_client.write(self.cache_key, self)
     end
 
     def stale?
-      @cache_expires_at && Time.now > Time.at(@cache_expires_at)
+      cache_expires_at && Time.now > Time.at(cache_expires_at)
     end
 
     def recache

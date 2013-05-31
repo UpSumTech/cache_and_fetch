@@ -71,8 +71,7 @@ describe CacheAndFetch::Fetchable do
       context "when the cache has not yet expired" do
         before :each do
           @obj = FetchableResource.new(:id => 1, :name => 'test')
-          @obj.instance_variable_set("@cache_expires_at", 10.minutes.since.to_i)
-          FetchableResource.cache_client.write('fetchable_resource/1', @obj)
+          @obj.cache
         end
 
         it "should fetch the object from the cache" do
@@ -87,7 +86,7 @@ describe CacheAndFetch::Fetchable do
             .with(:headers => {'Accept'=>'application/json'}) \
             .to_return(:status => 200, :body => {'id' => 1, 'name' => 'test'}.to_json, :headers => {})
           @obj = FetchableResource.new(:id => 1, :name => 'test')
-          @obj.instance_variable_set("@cache_expires_at",  10.minutes.ago.to_i)
+          @obj.cache_expires_at = 10.minutes.ago.to_i
           FetchableResource.cache_client.write('fetchable_resource/1', @obj)
         end
 
