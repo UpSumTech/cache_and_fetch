@@ -1,18 +1,22 @@
 module CacheAndFetch
   module Cacheable
+    DEFAULT_CACHE_EXPIRY_TIME = 20.minutes
+
     extend ActiveSupport::Concern
-
-    @cache_duration = 20.minutes
-
-    class << self
-      attr_accessor :cache_duration
-    end
 
     included do
       attr_accessor :cache_expires_at
     end
 
     module ClassMethods
+      def cache_duration
+        @cache_duration || set_cache_duration(Cacheable::DEFAULT_CACHE_EXPIRY_TIME)
+      end
+
+      def set_cache_duration(val)
+        @cache_duration = val
+      end
+
       def cache_client
         Rails.cache
       end
@@ -41,7 +45,7 @@ module CacheAndFetch
     end
 
     def cache
-      self.cache_expires_at = Cacheable.cache_duration.since.to_i
+      self.cache_expires_at = self.class.cache_duration.since.to_i
       self.cache_client.write(self.cache_key, self)
     end
 

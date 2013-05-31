@@ -3,7 +3,10 @@ require 'spec_helper'
 describe CacheAndFetch::Cacheable do
   class CacheableTestDummy
     include CacheAndFetch::Cacheable
+
     attr_accessor :id
+
+    set_cache_duration 25.minutes
 
     def initialize(attrs = {})
       attrs.each do |(key, val)|
@@ -28,9 +31,25 @@ describe CacheAndFetch::Cacheable do
     CacheableTestDummy.new(:id => 1)
   end
 
-  describe "cache_duration" do
-    it "should return the duration for which the cache is valid" do
-      CacheAndFetch::Cacheable.cache_duration.should eq(20.minutes)
+  describe ".cache_duration" do
+    context "when the cache duration for soft expiry is set" do
+      before :each do
+        CacheableTestDummy.set_cache_duration(15.minutes)
+      end
+
+      it "returns the duration for which the cache is valid" do
+        CacheableTestDummy.cache_duration.should eq(15.minutes)
+      end
+    end
+
+    context "when the cache duration for soft expiry is not set" do
+      before :each do
+        CacheableTestDummy.set_cache_duration(nil)
+      end
+
+      it "returns the default cache duration" do
+        CacheableTestDummy.cache_duration.should eq(described_class::DEFAULT_CACHE_EXPIRY_TIME)
+      end
     end
   end
 
