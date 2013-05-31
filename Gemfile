@@ -11,6 +11,7 @@ group :development, :test do
 end
 
 group :test do
+  gem "dispatch-rider"
   gem "webmock"
   gem "activeresource"
 end

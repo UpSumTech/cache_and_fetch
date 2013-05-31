@@ -54,7 +54,7 @@ describe CacheAndFetch::Cacheable do
   end
 
   describe ".cache_client" do
-    it "should return a client to access the cache" do
+    it "returns a client to access the cache" do
       client = CacheableTestDummy.cache_client
       client.should respond_to(:read)
       client.should respond_to(:write)
@@ -62,13 +62,13 @@ describe CacheAndFetch::Cacheable do
   end
 
   describe ".cache_key" do
-    it "should return the key where the cached value is stored" do
+    it "returns the key where the cached value is stored" do
       CacheableTestDummy.cache_key(subject.id).should eq('cacheable_test_dummy/1')
     end
   end
 
   describe ".cache" do
-    it "should find the object and cache it" do
+    it "finds the object and cache it" do
       CacheableTestDummy.cache(subject.id)
       result = CacheableTestDummy.cache_client.read('cacheable_test_dummy/1')
       result.should_not be_stale
@@ -87,7 +87,7 @@ describe CacheAndFetch::Cacheable do
   end
 
   describe "#cache_client" do
-    it "should return a client to access the cache" do
+    it "returns a client to access the cache" do
       client = subject.cache_client
       client.should respond_to(:read)
       client.should respond_to(:write)
@@ -95,13 +95,13 @@ describe CacheAndFetch::Cacheable do
   end
 
   describe "#cache_key" do
-    it "should return the key where the cached value is stored" do
+    it "returns the key where the cached value is stored" do
       subject.cache_key.should eq('cacheable_test_dummy/1')
     end
   end
 
   describe "#cache" do
-    it "should cache the object with a soft expiry time" do
+    it "caches the object with a soft expiry time" do
       subject.cache
       result = CacheableTestDummy.cache_client.read('cacheable_test_dummy/1')
       result.should_not be_stale

@@ -54,7 +54,7 @@ module CacheAndFetch
     end
 
     def recache
-      Rails.application.dispatch_publisher.publish(:subject => "recache_resource", :body => {:resource_type => self.class.name, :resource_id => self.id})
+      self.class.__send__(:find, self.id).cache
     end
   end
 end

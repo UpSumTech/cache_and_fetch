@@ -12,7 +12,7 @@ describe CacheAndFetch::Fetchable do
 
   describe ".included" do
     context "when the class including the module does not have a custom finder" do
-      it "should raise an error" do
+      it "raises an error" do
         expect do
           Class.new do
             include CacheAndFetch::Fetchable
@@ -34,7 +34,7 @@ describe CacheAndFetch::Fetchable do
         end
       end
 
-      it "should not raise any exception and use the custom finder" do
+      it "does not raise any exception and use the custom finder" do
         expect do
           class PatheticFetchableDummy
             include CacheAndFetch::Fetchable
@@ -47,7 +47,7 @@ describe CacheAndFetch::Fetchable do
   end
 
   describe ".find" do
-    it "should throw an error" do
+    it "raises an error" do
       expect { FetchableResource.find(1) }.to raise_exception(NoMethodError)
     end
   end
@@ -60,7 +60,7 @@ describe CacheAndFetch::Fetchable do
           .to_return(:status => 200, :body => {'id' => 1, 'name' => 'test'}.to_json, :headers => {})
       end
 
-      it "should fetch the object from the remote application" do
+      it "fetches the object from the remote application" do
         obj = FetchableResource.fetch(1)
         obj.id.should eq(1)
         obj.name.should eq('test')
@@ -74,7 +74,7 @@ describe CacheAndFetch::Fetchable do
           @obj.cache
         end
 
-        it "should fetch the object from the cache" do
+        it "fetches the object from the cache" do
           publisher.should_receive(:publish).exactly(0).times
           FetchableResource.fetch(1).should eq(@obj)
         end
@@ -82,20 +82,45 @@ describe CacheAndFetch::Fetchable do
 
       context "when the cache has expired" do
         before :each do
-          stub_request(:get, "http://test.example.com/fetchable_resources/1.json") \
-            .with(:headers => {'Accept'=>'application/json'}) \
-            .to_return(:status => 200, :body => {'id' => 1, 'name' => 'test'}.to_json, :headers => {})
           @obj = FetchableResource.new(:id => 1, :name => 'test')
           @obj.cache_expires_at = 10.minutes.ago.to_i
           FetchableResource.cache_client.write('fetchable_resource/1', @obj)
         end
 
-        it "should fetch the object from the cache" do
-          catch(:publish_was_called) { result = FetchableResource.fetch(1).should eq(@obj) }
+        context "when the fetch method receives no custom block" do
+          before :each do
+            stub_request(:get, "http://test.example.com/fetchable_resources/1.json") \
+              .with(:headers => {'Accept'=>'application/json'}) \
+              .to_return(:status => 200, :body => {'id' => 1, 'name' => 'another_test'}.to_json, :headers => {})
+          end
+
+          it "fetches the object from the cache" do
+            FetchableResource.fetch(1).should eq(@obj)
+          end
+
+          it "recaches the object" do
+            FetchableResource.fetch(1).name.should eq('test')
+            sleep 1
+            FetchableResource.fetch(1).name.should eq('another_test')
+          end
         end
 
-        it "should enqueue a message with the messaging system to fetch the resource asynchronously" do
-          catch(:publish_was_called) { FetchableResource.fetch(1) }.should eq({:subject => "recache_resource", :body => {:resource_type => "FetchableResource", :resource_id => 1}})
+        context "when the fetch method receives a custom block" do
+          it "fetches the object from the cache" do
+            catch(:publish_was_called) do
+              FetchableResource.fetch(1) do |resource|
+                Rails.application.dispatch_publisher.publish(:subject => "recache_resource", :body => {:resource_type => resource.class.name, :resource_id => resource.id})
+              end.should eq(@obj)
+            end
+          end
+
+          it "executes the block of code being passed" do
+            catch(:publish_was_called) do
+              FetchableResource.fetch(1) do |resource|
+                Rails.application.dispatch_publisher.publish(:subject => "recache_resource", :body => {:resource_type => resource.class.name, :resource_id => resource.id})
+              end
+            end.should eq({:subject => "recache_resource", :body => {:resource_type => "FetchableResource", :resource_id => 1}})
+          end
         end
       end
     end

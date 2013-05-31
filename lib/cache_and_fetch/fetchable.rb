@@ -16,7 +16,9 @@ module CacheAndFetch
       def fetch(id)
         resource = get_cached(id)
         if resource
-          resource.recache if resource.stale?
+          if resource.stale?
+            block_given? ? yield(resource) : resource.recache
+          end
         else
           resource = cache(id)
         end
