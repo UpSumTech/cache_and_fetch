@@ -22,7 +22,6 @@ module CacheAndFetch
         resource.cache
         resource
       end
-      alias_method :new_cache, :cache
 
       def get_cached(id)
         cache_client.read(cache_key(id))
@@ -46,7 +45,7 @@ module CacheAndFetch
       @cache_expires_at && Time.now > Time.at(@cache_expires_at)
     end
 
-    def recache_later
+    def recache
       Rails.application.dispatch_publisher.publish(:subject => "recache_resource", :body => {:resource_type => self.class.name, :resource_id => self.id})
     end
   end

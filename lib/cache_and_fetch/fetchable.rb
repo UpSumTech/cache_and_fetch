@@ -14,13 +14,13 @@ module CacheAndFetch
 
     module ClassMethods
       def fetch(id)
-        cached_resource = get_cached(id)
+        resource = get_cached(id)
         if cached_resource
-          cached_resource.recache_later if cached_resource.stale?
+          resource.recache if resource.stale?
         else
-          cached_resource = new_cache(id)
+          resource = cache(id)
         end
-        cached_resource
+        resource
       end
     end
   end
