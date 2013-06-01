@@ -5,6 +5,7 @@ require "rails"
 require "active_resource"
 require "webmock/rspec"
 require "cache_and_fetch"
+require "coveralls"
 
 module CacheAndFetch
   Struct.new('Publisher') do
@@ -32,3 +33,5 @@ RSpec.configure do |config|
   config.color_enabled = true
   config.tty = true
 end
+
+Coveralls.wear!
