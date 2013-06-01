@@ -4,10 +4,9 @@ A simple gem that allows to add a soft expiry to your cache.
 If your cache soft expires, you get the stale record to work with,
 while it fetches the fresh record from the source in background.
 
-## Build status
-
 [![Build Status](https://travis-ci.org/sumanmukherjee03/cache_and_fetch.png)](https://travis-ci.org/sumanmukherjee03/cache_and_fetch)
 [![Dependency Status](https://gemnasium.com/sumanmukherjee03/cache_and_fetch.png)](https://gemnasium.com/sumanmukherjee03/cache_and_fetch)
+[![Code Climate](https://codeclimate.com/github/sumanmukherjee03/cache_and_fetch.png)](https://codeclimate.com/github/sumanmukherjee03/cache_and_fetch)
 
 ## Installation
 
