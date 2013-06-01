@@ -54,7 +54,7 @@ module CacheAndFetch
     end
 
     def recache
-      self.class.__send__(:find, self.id).cache
+      Thread.new { self.class.__send__(:find, self.id).cache }
     end
   end
 end
