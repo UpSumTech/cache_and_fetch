@@ -7,6 +7,7 @@ while it fetches the fresh record from the source in background.
 ## Build status
 
 [![Build Status](https://travis-ci.org/sumanmukherjee03/cache_and_fetch.png)](https://travis-ci.org/sumanmukherjee03/cache_and_fetch)
+[![Dependency Status](https://gemnasium.com/sumanmukherjee03/cache_and_fetch.png)](https://gemnasium.com/sumanmukherjee03/cache_and_fetch)
 
 ## Installation
 
