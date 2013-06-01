@@ -7,6 +7,7 @@ while it fetches the fresh record from the source in background.
 [![Build Status](https://travis-ci.org/sumanmukherjee03/cache_and_fetch.png)](https://travis-ci.org/sumanmukherjee03/cache_and_fetch)
 [![Dependency Status](https://gemnasium.com/sumanmukherjee03/cache_and_fetch.png)](https://gemnasium.com/sumanmukherjee03/cache_and_fetch)
 [![Code Climate](https://codeclimate.com/github/sumanmukherjee03/cache_and_fetch.png)](https://codeclimate.com/github/sumanmukherjee03/cache_and_fetch)
+[![Coverage Status](https://coveralls.io/repos/sumanmukherjee03/cache_and_fetch/badge.png)](https://coveralls.io/r/sumanmukherjee03/cache_and_fetch)
 
 ## Installation
 
