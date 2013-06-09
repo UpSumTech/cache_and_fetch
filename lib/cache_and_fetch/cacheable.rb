@@ -1,19 +1,33 @@
 module CacheAndFetch
   module Cacheable
     DEFAULT_CACHE_EXPIRY_TIME = 20.minutes
+    DEFAULT_PRIMARY_KEY_METHOD = :id
 
     extend ActiveSupport::Concern
 
     included do
       attr_accessor :cache_expires_at
+      unless self.respond_to?(:primary_key)
+        instance_eval do
+          def primary_key
+            self.primary_key = Cacheable::DEFAULT_PRIMARY_KEY_METHOD unless @primary_key
+            @primary_key
+          end
+
+          def primary_key=(val)
+            @primary_key = val
+          end
+        end
+      end
     end
 
     module ClassMethods
       def cache_duration
-        @cache_duration || set_cache_duration(Cacheable::DEFAULT_CACHE_EXPIRY_TIME)
+        self.cache_duration = Cacheable::DEFAULT_CACHE_EXPIRY_TIME unless @cache_duration
+        @cache_duration
       end
 
-      def set_cache_duration(val)
+      def cache_duration=(val)
         @cache_duration = val
       end
 
@@ -21,18 +35,18 @@ module CacheAndFetch
         Rails.cache
       end
 
-      def cache_key(id)
-        "#{self.name.underscore}/#{id}"
+      def cache_key(p_key)
+        "#{self.name.underscore}/#{p_key}"
       end
 
-      def cache(id)
-        resource = find(id)
+      def cache(p_key)
+        resource = find(p_key)
         resource.cache
         resource
       end
 
-      def get_cached(id)
-        cache_client.read(cache_key(id))
+      def get_cached(p_key)
+        cache_client.read(cache_key(p_key))
       end
     end
 
@@ -41,7 +55,7 @@ module CacheAndFetch
     end
 
     def cache_key
-      self.class.cache_key(self.id)
+      self.class.cache_key(self.__send__(self.class.primary_key))
     end
 
     def cache
@@ -54,7 +68,10 @@ module CacheAndFetch
     end
 
     def recache
-      Thread.new { self.class.__send__(:find, self.id).cache }
+      Thread.new do
+        p_key = self.__send__(self.class.primary_key)
+        self.class.__send__(:find, p_key).cache
+      end
     end
   end
 end

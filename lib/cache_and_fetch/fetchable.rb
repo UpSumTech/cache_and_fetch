@@ -13,14 +13,14 @@ module CacheAndFetch
     end
 
     module ClassMethods
-      def fetch(id)
-        resource = get_cached(id)
+      def fetch(p_key)
+        resource = get_cached(p_key)
         if resource
           if resource.stale?
             block_given? ? yield(resource) : resource.recache
           end
         else
-          resource = cache(id)
+          resource = cache(p_key)
         end
         resource
       end
