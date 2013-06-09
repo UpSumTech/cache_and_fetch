@@ -13,7 +13,7 @@ while it fetches the fresh record from the source in background.
 
 Add this line to your application's Gemfile:
 
-    gem 'cache_man'
+    gem 'cache_and_fetch'
 
 And then execute:
 
@@ -21,7 +21,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install cache_man
+    $ gem install cache_and_fetch
 
 ## Usage
 
@@ -32,9 +32,9 @@ Or install it yourself as:
   end
 ```
 
-You can set a custom cache expiration limit. If this is not set, the soft cache expires after 20 minutes by default.
+You can set a custom cache expiration limit for the class. If this is not set, the soft cache expires after 20 minutes by default.
 ```ruby
-    set_cache_expiration 10.minutes
+    self.cache_expiration = 10.minutes
 ```
 
 When invoked for the first time(cold cache), the gem goes and fetches the resource from a remote location.
@@ -95,6 +95,25 @@ module SimpleTest::Finder
   end
 end
 ```
+
+The gem allows you to set the method name you want to use as primary key.
+Of course, your instance must respond to the method you have set to extract the primary key.
+```ruby
+class AnotherTest
+  include CacheAndFetch::Fetchable
+
+  attr_accessor :guid
+
+  self.primary_key = :guid
+
+  def initialize(guid)
+    @guid = guid
+  end
+end
+```
+So, now when you do a ```Test.fetch(1)```, the argument for fetch
+represents the primary key of the object. In this case, it is the guid
+of the object.
 
 The gem makes use of Rails caching mechanism.
 Hence, it only works with Rails as of now.
