@@ -1,7 +1,6 @@
 require "cache_and_fetch/version"
 require "active_support/concern"
 require "active_support/core_ext/numeric/time"
-require "rails"
 
 module CacheAndFetch
 end

@@ -30,7 +30,11 @@ module CacheAndFetch
       end
 
       def cache_client
-        Rails.cache
+        @cache_client
+      end
+
+      def register_cache_client(store)
+        @cache_client = store
       end
 
       def cache_key(p_key)

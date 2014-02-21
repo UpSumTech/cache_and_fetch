@@ -3,32 +3,28 @@ require 'spec_helper'
 describe CacheAndFetch::Fetchable do
   class FetchableResource < ActiveResource::Base
     include CacheAndFetch::Fetchable
+    register_cache_client Rails.cache
     self.site = 'http://test.example.com'
   end
 
-  let :publisher do
-    Rails.application.dispatch_publisher
-  end
-
-  describe ".included" do
-    context "when the class including the module has a custom finder" do
-      before :each do
-        module Finder
-          def find(key)
-            "mutilated-#{key.to_s}"
-          end
-        end
-
-        class PatheticFetchableDummy < ActiveResource::Base
-          self.site = 'http://test.example.com'
-          include CacheAndFetch::Fetchable
-          register_finder Finder
+  describe "custom finder" do
+    before :each do
+      module Finder
+        def find(key)
+          "mutilated-#{key.to_s}"
         end
       end
 
-      it "does not raise any exception and use the custom finder" do
-        PatheticFetchableDummy.send(:find, 'body').should eq('mutilated-body')
+      class PatheticFetchableDummy < ActiveResource::Base
+        self.site = 'http://test.example.com'
+        include CacheAndFetch::Fetchable
+        register_cache_client Rails.cache
+        register_finder Finder
       end
+    end
+
+    it "finds the cached content" do
+      PatheticFetchableDummy.send(:find, 'body').should eq('mutilated-body')
     end
   end
 
@@ -55,7 +51,6 @@ describe CacheAndFetch::Fetchable do
         end
 
         it "fetches the object from the cache" do
-          publisher.should_receive(:publish).exactly(0).times
           FetchableResource.fetch(1).should eq(@obj)
         end
       end
@@ -87,19 +82,11 @@ describe CacheAndFetch::Fetchable do
 
         context "when the fetch method receives a custom block" do
           it "fetches the object from the cache" do
-            catch(:publish_was_called) do
+            catch(:foo) do
               FetchableResource.fetch(1) do |resource|
-                Rails.application.dispatch_publisher.publish(:subject => "recache_resource", :body => {:resource_type => resource.class.name, :resource_id => resource.id})
+                throw :foo
               end.should eq(@obj)
             end
-          end
-
-          it "executes the block of code being passed" do
-            catch(:publish_was_called) do
-              FetchableResource.fetch(1) do |resource|
-                Rails.application.dispatch_publisher.publish(:subject => "recache_resource", :body => {:resource_type => resource.class.name, :resource_id => resource.id})
-              end
-            end.should eq({:subject => "recache_resource", :body => {:resource_type => "FetchableResource", :resource_id => 1}})
           end
         end
       end

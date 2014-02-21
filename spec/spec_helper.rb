@@ -8,16 +8,7 @@ require "cache_and_fetch"
 require "coveralls"
 
 module CacheAndFetch
-  Struct.new('Publisher') do
-    def publish(options)
-      throw :publish_was_called, options
-    end
-  end
-
   class Application < ::Rails::Application
-    def dispatch_publisher
-      Struct::Publisher.new
-    end
   end
 end
 

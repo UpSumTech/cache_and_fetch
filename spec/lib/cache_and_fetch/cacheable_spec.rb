@@ -3,6 +3,7 @@ require 'spec_helper'
 describe CacheAndFetch::Cacheable do
   class CacheableTestDummy
     include CacheAndFetch::Cacheable
+    register_cache_client Rails.cache
 
     attr_accessor :guid
     attr_accessor :name

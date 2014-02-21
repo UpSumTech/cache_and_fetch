@@ -7,12 +7,12 @@ group :development do
 end
 
 group :development, :test do
+  gem "rails"
   gem "rspec"
   gem "coveralls", require: false
 end
 
 group :test do
-  gem "dispatch-rider"
   gem "webmock"
   gem "activeresource"
 end
