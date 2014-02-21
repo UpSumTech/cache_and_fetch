@@ -10,8 +10,7 @@ module CacheAndFetch
       unless self.respond_to?(:primary_key)
         instance_eval do
           def primary_key
-            self.primary_key = Cacheable::DEFAULT_PRIMARY_KEY_METHOD unless @primary_key
-            @primary_key
+            @primary_key ||= Cacheable::DEFAULT_PRIMARY_KEY_METHOD
           end
 
           def primary_key=(val)
@@ -23,8 +22,7 @@ module CacheAndFetch
 
     module ClassMethods
       def cache_duration
-        self.cache_duration = Cacheable::DEFAULT_CACHE_EXPIRY_TIME unless @cache_duration
-        @cache_duration
+        @cache_duration ||= Cacheable::DEFAULT_CACHE_EXPIRY_TIME
       end
 
       def cache_duration=(val)
@@ -68,10 +66,8 @@ module CacheAndFetch
     end
 
     def recache
-      Thread.new do
-        p_key = self.__send__(self.class.primary_key)
-        self.class.__send__(:find, p_key).cache
-      end
+      p_key = self.send(self.class.primary_key)
+      self.class.send(:find, p_key).cache
     end
   end
 end
