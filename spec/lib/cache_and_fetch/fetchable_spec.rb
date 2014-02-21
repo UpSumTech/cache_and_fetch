@@ -11,44 +11,24 @@ describe CacheAndFetch::Fetchable do
   end
 
   describe ".included" do
-    context "when the class including the module does not have a custom finder" do
-      it "raises an error" do
-        expect do
-          Class.new do
-            include CacheAndFetch::Fetchable
-          end
-        end.to raise_exception(CacheAndFetch::FinderNotFound)
-      end
-    end
-
     context "when the class including the module has a custom finder" do
       before :each do
-        class PatheticFetchableDummy < ActiveResource::Base
-          self.site = 'http://test.example.com'
-        end
-
-        module PatheticFetchableDummy::Finder
+        module Finder
           def find(key)
             "mutilated-#{key.to_s}"
           end
         end
+
+        class PatheticFetchableDummy < ActiveResource::Base
+          self.site = 'http://test.example.com'
+          include CacheAndFetch::Fetchable
+          register_finder Finder
+        end
       end
 
       it "does not raise any exception and use the custom finder" do
-        expect do
-          class PatheticFetchableDummy
-            include CacheAndFetch::Fetchable
-          end
-        end.to_not raise_exception
-
         PatheticFetchableDummy.send(:find, 'body').should eq('mutilated-body')
       end
-    end
-  end
-
-  describe ".find" do
-    it "raises an error" do
-      expect { FetchableResource.find(1) }.to raise_exception(NoMethodError)
     end
   end
 

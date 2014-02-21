@@ -3,16 +3,11 @@ module CacheAndFetch
     extend ActiveSupport::Concern
     include Cacheable
 
-    included do
-      begin
-        extend "#{name}::Finder".constantize
-      rescue NameError => ex
-        raise FinderNotFound.new unless respond_to?(:find)
-      end
-      private_class_method :find
-    end
-
     module ClassMethods
+      def register_finder(mod)
+        self.extend(mod)
+      end
+
       def fetch(p_key)
         resource = get_cached(p_key)
         if resource

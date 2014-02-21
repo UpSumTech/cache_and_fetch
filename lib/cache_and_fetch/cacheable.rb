@@ -53,7 +53,7 @@ module CacheAndFetch
     end
 
     def cache_key
-      self.class.cache_key(self.__send__(self.class.primary_key))
+      self.class.cache_key(self.send(self.class.primary_key))
     end
 
     def cache
@@ -67,7 +67,7 @@ module CacheAndFetch
 
     def recache
       p_key = self.send(self.class.primary_key)
-      self.class.send(:find, p_key).cache
+      self.class.find(p_key).cache
     end
   end
 end
